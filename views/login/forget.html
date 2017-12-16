@@ -1,0 +1,38 @@
+<script type="text/javascript" src="includes/js/ajax_forget.js"></script>
+<style type="text/css">
+	.forget_infor{
+		width: 100%;
+		text-align: center;
+		font-size: 25px;
+	}
+</style>
+<script type="text/javascript">
+	$(function(){
+		$("#forget").click(function(){
+			// 傳入 controller , action , arg
+			if($("#pwd").val() === $("#check_pwd").val()){
+				let ajax_forget = new Ajax_Forget("login","forget",$("#form_infor").serialize());
+				ajax_forget.Run();
+			}else{
+				alert("密碼不同");
+			}
+			
+		})
+	})
+</script>
+<div class="forget_infor">
+    <form id="form_infor">
+        學號或老師編號：<input type="text" name="user" requried/><br>
+        身分證字號：<input type="text" name="id" required/><br>
+        新密碼：<input type="password" id="pwd" name="pwd" required/><br>
+        再次確認：<input type="password" id="check_pwd" name="check_pwd" required/><br>
+        選擇身份：<select name="type">
+        		  <option value="0" selected>學生</option>
+        		  <option value="1">老師</option>
+        		  <option value="2">行政人員</option>
+        		</select>
+        <hr>
+        <input type="button" id="forget" value="Send"/>
+        <input type="reset" value="Reset"/>
+    </form>
+</div>

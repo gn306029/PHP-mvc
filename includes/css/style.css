@@ -1,0 +1,36 @@
+body{
+	font-family: Microsoft JhengHei;
+	width: 100%;
+}
+
+input,
+button{
+	border-radius: 5px;
+	margin-top: 4px;
+	margin-left: 4px;
+}
+
+input[type=text],
+input[type=password]{
+	width: 20%;
+	border-top-style: none;
+	border-left-style: none;
+	border-right-style: none;
+}
+
+input[type=submit],
+input[type=reset],
+button{
+	font-size: 90%;
+	width:10%;
+	border-style: none;
+}
+
+input[type=submit],
+.confirm{
+	background-color: #33CCFF;
+}
+
+input[type=reset]{
+	background-color: #DDDDDD;
+}

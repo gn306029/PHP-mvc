@@ -10,13 +10,18 @@
 				$eventMessage = new eventMessage($_GET,$_POST);
 				$controller = new LoingController($eventMessage);
 				break;
+			case "manager":
+				$eventMessage = new eventMessage($_GET,$_POST);
+				$controller = new ManagerController($eventMessage);
+				break;
 		}
 		//  執行對應動作
 		echo $controller->$action();
 	}
 
 	$controllers = array('default' => ['index','error'],
-						 'login'  => ['index','login','logout','forget']);
+						 'login'  => ['index','login','logout','forget'],
+						 'manager' => ['search']);
 
 	$controller = "default";
 	$action = "error";

@@ -9,7 +9,7 @@ class Ajax_Login extends Ajax_Class{
 
 		switch(response["Type"]){
 			case "Success":
-				window.location.href = "/MVC/?controller=default&action=index";
+				window.location.href = "/MVC/";
 				break;
 			case "InforError":
 				alert("帳號或密碼錯誤");

@@ -41,6 +41,17 @@
 					"Msg"=>$_SESSION["login"]
 				);
 			}
+			/*
+			設定權限 SESSION
+			*/
+			switch ($type) {
+				case "student":
+					$this->set_session("type","0");
+					break;
+				case "teacher":
+					$this->set_session("type","1");
+					break;
+			}
 			return json_encode($resMsg);
 		}
 

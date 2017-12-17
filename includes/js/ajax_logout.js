@@ -9,7 +9,7 @@ class Ajax_Logout extends Ajax_Class{
 
 		switch(response["Type"]){
 			case "Success":
-				window.location.href = "/MVC/?controller=default&action=index";
+				window.location.href = "/MVC/";
 				break;
 		}
 	}

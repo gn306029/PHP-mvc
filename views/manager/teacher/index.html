@@ -1,9 +1,14 @@
-<script type="text/javascript" src="models/js/ajax_infor.js"></script>
+<script type="text/javascript" src="js_models/manager/ajax_infor.js"></script>
 <script type="text/javascript">
 	$(function(){
 		$("#information_modify").click(function(){
 			let ajax_infor = new Ajax_Infor("manager","search");
 			ajax_infor.Run();
+		})
+
+		$("#manger_content").on("click","#send",function(){
+			let ajax_infor_modify = new Ajax_Infor_Modify("manager","modify",$("#information").serialize());
+			ajax_infor_modify.Run();
 		})
 	})
 </script>

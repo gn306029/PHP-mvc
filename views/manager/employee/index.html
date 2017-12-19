@@ -1,0 +1,23 @@
+<script type="text/javascript" src="js_models/manager/ajax_infor.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#information_modify").click(function(){
+			let ajax_infor = new Ajax_Infor("manager","search");
+			ajax_infor.Run();
+		})
+
+		$("#manger_content").on("click","#send",function(){
+			let ajax_infor_modify = new Ajax_Infor_Modify("manager","modify",$("#information").serialize());
+			ajax_infor_modify.Run();
+		})
+	})
+</script>
+<div class="manager">
+	<span id="information_modify"><a href="#">基本資料修改</a></span></br>
+	<span><a href="#">學生資料新增</a></span></br>
+	<span><a href="#">教職員資料新增</a></span></br>
+	<span><a href="#">課程相關資訊修改</a></span></br>
+	<span><a href="#">校車系統</a></span></br>
+	<div id="manger_content">
+	</div>
+</div>

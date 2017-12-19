@@ -16,7 +16,7 @@
 					break;
 				
 				case "teacher":
-					$sql = "SELECT Name From teacher Where Teacher_ID = :SID AND Password = :Password";
+					$sql = "SELECT Name,job_title.Job_Category From teacher Join job_title On teacher.Job_ID = job_title.Job_ID Where Teacher_ID = :SID AND Password = :Password";
 					break;
 			}
 			$parm = array(
@@ -28,7 +28,7 @@
 			$response = $stmt->fetchAll();
 			if(count($response) > 0){
 				$conn = null;
-				return json_encode($response);
+				return $response;
 			}else{
 				$conn = null;
 				return;
@@ -75,8 +75,9 @@
 							Where SID = :SID";
 					break;
 				case "1":
+				case "2":
 					$sql = "SELECT 
-							Teacher_ID,teacher.Name,ID,Birth,Gender,faculty.Name,
+							Teacher_ID,teacher.Name,ID,Birth,Gender,faculty.Name As Faculty,
 							Address,Phone,Cellphone,
 							Urgent_Man,Urgent_Phone,Salary,Years,job_title.Title,job_title.Job_Category
 							From teacher JOIN faculty On teacher.Faculty_ID = faculty.Faculty_ID
@@ -90,12 +91,95 @@
 			$stmt = $conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
+			// 將職務類型編號轉為中文
+			if($type == "1" || $type == "2"){
+				if($response[0]["Job_Category"] == "1"){
+					$response[0]["Job_Category"] = "教師";
+				}else if($response[0]["Job_Category"] == "2"){
+					$response[0]["Job_Category"] = "行政人員";
+				}
+			}
+			// 將 Null 轉為空值
+			foreach ($response[0] as $key => $index) {
+				if(is_null($response[0][$key])){
+					$response[0][$key] = "";
+				}
+			}
+			// 將性別轉為中文
+			if($response[0]["Gender"] == "0"){
+				$response[0]["Gender"] = "女";
+			}else{
+				$response[0]["Gender"] = "男";
+			}
 			if(count($response)>0){
 				$conn = null;
 				return json_encode($response);
 			}else{
 				$conn = null;
 				return;
+			}
+		}
+
+		public function modify($user,$type,$post){
+			switch ($type) {
+				case "0":
+					$sql = "UPDATE student
+							SET 
+							Address = :Address,
+							Phone = :Phone,
+							Cellphone = :Cellphone,
+							Father = :Father,
+							Father_Phone = :Father_Phone,
+							Mather = :Mather,
+							Mather_Phone = :Mather_Phone,
+							Urgent_Man = :Urgent_Man,
+							Urgent_Phone = :Urgent_Phone
+							Where
+							SID = :SID";
+					$parm = array(
+						":Address"=>$post["address"],
+						":Phone"=>$post["phone"],
+						":Cellphone"=>$post["cellphone"],
+						":Father"=>$post["father"],
+						":Father_Phone"=>$post["father_phone"],
+						":Mather"=>$post["mather"],
+						":Mather_Phone"=>$post["mather_phone"],
+						":Urgent_Man"=>$post["urgent_man"],
+						":Urgent_Phone"=>$post["urgent_phone"],
+						":SID"=>$user
+					);
+					break;
+				case "1":
+				case "2":
+					$sql = "UPDATE teacher
+							SET 
+							Address = :Address,
+							Phone = :Phone,
+							Cellphone = :Cellphone,
+							Urgent_Man = :Urgent_Man,
+							Urgent_Phone = :Urgent_Phone
+							Where
+							Teacher_ID = :SID";
+					$parm = array(
+						":Address"=>$post["address"],
+						":Phone"=>$post["phone"],
+						":Cellphone"=>$post["cellphone"],
+						":Urgent_Man"=>$post["urgent_man"],
+						":Urgent_Phone"=>$post["urgent_phone"],
+						":SID"=>$user
+					);
+					break;
+			}
+			$conn = db::Get_Conn();
+			$stmt = $conn->prepare($sql);
+			$stmt->execute($parm);
+			$count = $stmt->rowCount();
+			if($count > 0){
+				$conn = null;
+				return true;
+			}else{
+				$conn = null;
+				return false;
 			}
 		}
 

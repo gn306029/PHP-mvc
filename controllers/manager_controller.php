@@ -34,5 +34,26 @@
 			}
 			return json_encode($resMsg);
 		}
+
+		public function modify(){
+			if(!isset($_SESSION["type"]) && !isset($_SESSION["login"])){
+				require_once("views/default/index.html");
+				return;
+			}
+			$infor_model = new Information_Model();
+			$response = $infor_model->modify($_SESSION["login"],$_SESSION["type"],$this->post);
+			if($response){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>"更新成功"
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"沒有更新任何資料"
+				);
+			}
+			return json_encode($resMsg);
+		}
 	}
 ?>

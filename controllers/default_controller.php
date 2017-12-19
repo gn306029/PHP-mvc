@@ -8,10 +8,13 @@
 			if(isset($_SESSION["type"])){
 				switch($_SESSION["type"]){
 					case "0":
-						require_once("views/manager/index.html");
+						require_once("views/manager/student/index.html");
 						break;
 					case "1":
-						require_once("views/manager/index.html");
+						require_once("views/manager/teacher/index.html");
+						break;
+					case "2":
+						require_once("views/manager/employee/index.html");
 						break;
 				}
 			}else{

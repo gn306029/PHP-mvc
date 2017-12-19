@@ -6,13 +6,16 @@
 		require_once("includes/php/eventMessage.php");
 		switch($controller){
 			case "login":
-				// 顯示 Login 模組相關頁面
 				$eventMessage = new eventMessage($_GET,$_POST);
 				$controller = new LoingController($eventMessage);
 				break;
 			case "manager":
 				$eventMessage = new eventMessage($_GET,$_POST);
 				$controller = new ManagerController($eventMessage);
+				break;
+			case "course":
+				$eventMessage = new eventMessage($_GET,$_POST);
+				$controller = new CourseController($eventMessage);
 				break;
 		}
 		//  執行對應動作
@@ -21,7 +24,8 @@
 
 	$controllers = array('default' => ['index','error'],
 						 'login'  => ['index','login','logout','forget'],
-						 'manager' => ['search']);
+						 'manager' => ['search','modify'],
+						 'course' => ['search']);
 
 	$controller = "default";
 	$action = "error";

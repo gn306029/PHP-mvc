@@ -34,7 +34,6 @@
 					"Msg"=>"帳號密碼錯誤"
 				);
 			}else{
-				
 				$this->set_session("login",$this->post["user"]);
 				$resMsg = array(
 					"Type"=>"Success",
@@ -43,14 +42,20 @@
 			}
 			/*
 			設定權限 SESSION
+			只有老師資料表會與工作資料表做JOIN
+			故沒有這個欄位就表示登入者為學生
 			*/
-			switch ($type) {
-				case "student":
-					$this->set_session("type","0");
-					break;
-				case "teacher":
+			if(isset($response[0]["Job_Category"])){
+				if($response[0]["Job_Category"] == "1"){
+					// 教師
 					$this->set_session("type","1");
-					break;
+				}else if($response[0]["Job_Category"] == "2"){
+					// 行政人員
+					$this->set_session("type","2");
+				}
+			}else{
+				// 學生
+				$this->set_session("type","0");
 			}
 			return json_encode($resMsg);
 		}
@@ -67,7 +72,9 @@
 		public function show_forget(){
 			require_once("views/login/forget.html");
 		}
-
+		/*
+		行政人員與老師為何在一張資料表之中
+		*/
 		public function forget(){
 			$infor_model = new Information_Model();
 			switch ($this->post["type"]) {
@@ -75,9 +82,6 @@
 					$type = "student";
 					break;
 				case "1":
-					$type = "teacher";
-					break;
-				case "2":
 					$type = "teacher";
 					break;
 				default:

@@ -24,7 +24,7 @@ class Ajax_Search_Course extends Ajax_Class {
                 	html += "<tr>";
                     for (let i=0;i<Object.keys(data[key]).length/2;i++) {
                         if (i == 0) {
-                            html += "<td class=\"td_content\"><a href=\"#\">" + data[key][i] + "</a></td>";
+                            html += "<td class=\"td_content\"><a href='#' class='course_id' id="+data[key][i]+">" + data[key][i] + "</a></td>";
                         } else {
                             html += "<td class=\"td_content\">" + data[key][i] + "</td>";
                         }
@@ -34,8 +34,8 @@ class Ajax_Search_Course extends Ajax_Class {
                 html += "</table>";
                 $("#course_content").html(html);
                 break;
-            case "SearchError":
-                $("#course_content").html("<p>未搜尋到資料</p>");
+            case "SearchNotFound":
+                $("#course_content").html("<p>"+response["Msg"]+"</p>");
                 break;
         }
     }

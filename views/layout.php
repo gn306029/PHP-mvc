@@ -10,6 +10,7 @@
     <script type="text/javascript" src="includes/js/ajax_class"></script>
     <script type="text/javascript" src="includes/js/ajax_login.js"></script>
     <script type="text/javascript" src="includes/js/ajax_logout.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.1/vue.min.js"></script>
 
 </head>
 <body>

@@ -4,12 +4,14 @@
 	1.帳號登入判斷
 	2.學生、老師、行政人員基本資料查詢修改
 	*/
-	class Information_Model{
+	require_once("models/Model.php");
+	class Information_Model extends Model{
 
-		public function __construct(){}
+		public function __construct(){
+			parent::__construct();
+		}
 
 		public function login($user,$pwd,$type){
-			$conn = db::Get_Conn();
 			switch ($type) {
 				case "student":
 					$sql = "SELECT Name From student Where SID = :SID AND Password = :Password";
@@ -23,20 +25,17 @@
 				":SID"=>$user,
 				":Password"=>md5($pwd)
 			);
-			$stmt = $conn->prepare($sql);
+			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
 			if(count($response) > 0){
-				$conn = null;
 				return $response;
 			}else{
-				$conn = null;
 				return;
 			}
 		}
 		/* 忘記密碼直接重設 ， 因為密碼使用 MD5 加密過了*/
 		public function forget($user,$id,$pwd,$type){
-			$conn = db::Get_Conn();
 			switch ($type) {
 				case "student":
 					$sql = "UPDATE student SET Password = :Password Where SID = :SID AND ID = :ID";
@@ -50,20 +49,17 @@
 				":ID"=>$id,
 				":Password"=>md5($pwd)
 			);
-			$stmt = $conn->prepare($sql);
+			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$count = $stmt->rowCount();
 			if($count > 0){
-				$conn = null;
 				return true;
 			}else{
-				$conn = null;
 				return false;
 			}
 		}
 
 		public function information($user,$type){
-			$conn = db::Get_Conn();
 			switch ($type) {
 				case "0":
 					$sql = "SELECT 
@@ -88,7 +84,7 @@
 			$parm = array(
 				"SID"=>$user
 			);
-			$stmt = $conn->prepare($sql);
+			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
 			// 將職務類型編號轉為中文
@@ -112,10 +108,8 @@
 				$response[0]["Gender"] = "男";
 			}
 			if(count($response)>0){
-				$conn = null;
 				return json_encode($response);
 			}else{
-				$conn = null;
 				return;
 			}
 		}
@@ -170,15 +164,12 @@
 					);
 					break;
 			}
-			$conn = db::Get_Conn();
-			$stmt = $conn->prepare($sql);
+			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$count = $stmt->rowCount();
 			if($count > 0){
-				$conn = null;
 				return true;
 			}else{
-				$conn = null;
 				return false;
 			}
 		}

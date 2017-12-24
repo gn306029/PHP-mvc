@@ -52,7 +52,7 @@ class Ajax_Infor extends Ajax_Class{
 				html += "<input type=\"button\" id=\"send\" value=\"修改\"/>"
 				html += "</form>";
 				$("#manger_content").append(html);
-				let script = "<script id=\"modify_script\" src=\"models/js/ajax_infor_modify.js\"></script>";
+				let script = "<script id=\"modify_script\" src=\"js_models/manager/ajax_infor_modify.js\"></script>";
 				// 判斷是否加載過了
 				if($("#modify_script").length == 0){
 					$("head").append(script);

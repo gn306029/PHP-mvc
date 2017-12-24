@@ -1,6 +1,5 @@
 <?php
 	session_start();
-	require_once("includes/php/db.php");
 	function call($controller,$action){
 		require_once("controllers/".$controller."_controller.php");
 		require_once("includes/php/eventMessage.php");
@@ -25,7 +24,7 @@
 	$controllers = array('default' => ['index','error'],
 						 'login'  => ['index','login','logout','forget'],
 						 'manager' => ['search','modify'],
-						 'course' => ['search']);
+						 'course' => ['search','history_search','information','now','show_evol']);
 
 	$controller = "default";
 	$action = "error";

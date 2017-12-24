@@ -1,10 +1,35 @@
 <script type="text/javascript" src="js_models/course/ajax_search_course.js"></script>
+<script type="text/javascript" src="js_models/course/ajax_history_search.js"></script>
+<script type="text/javascript" src="js_models/course/ajax_course_information.js"></script>
+<script type="text/javascript" src="js_models/course/ajax_now_course.js"></script>
 <script type="text/javascript">
 $(function() {
-    $("#Pro_search").click(function() {
-        let ajax_search_course = new Ajax_Search_Course("course", "search", "course_type=Pro");
+    $(".course_search").click(function() {
+        let ajax_search_course = new Ajax_Search_Course("course", "search", "course_type="+$(this).attr("id"));
         ajax_search_course.Run();
     })
+
+    $(".history_search").click(function(){
+    	let ajax_history_search = new Ajax_History_Search("course","history_search","search_type="+$(this).attr("id"));
+    	ajax_history_search.Run();
+    })
+
+    $("#course_content").on("click",".course_id",function(){
+        let ajax_course_information = new Ajax_Course_Information("course","information","id="+$(this).attr("id"));
+        ajax_course_information.Run();
+    })
+
+    $("#Evol").click(function(){
+        let ajax_now_course = new Ajax_Now_Course("course","now");
+        ajax_now_course.Run();
+    })
+
+    $("#course_content").on("click","#show_evol",function(){
+        let ajax_course_evol = new Ajax_Course_Evol("course","show_evol","id="+$(this).val());
+        ajax_course_evol.Run();
+    })
+
+
 })
 </script>
 <style type="text/css">
@@ -15,14 +40,14 @@ $(function() {
 </style>
 <div class="course_infor">
     <p>課程搜尋結果會將已修過且取得學分之課程以紅色字顯示</p>
-    <span id="Pro_search"><a href="#">專業課程查詢</a></span></br>
-    <span><a href="#">通識課程查詢</a></span></br>
-    <span><a href="#">體育課程查詢</a></span></br>
-    <span><a href="#">軍訓課程查詢</a></span></br>
-    <span><a href="#">歷年成績查詢</a></span></br>
-    <span><a href="#">歷年課表課程查詢</a></span></br>
-    <span><a href="#">本學期課程評價填寫</a></span></br>
-    <span><a href="#">畢業門檻查詢</a></span></br>
+    <span id="Pro" class="course_search"><a href="#">專業課程查詢</a></span></br>
+    <span id="Gen" class="course_search"><a href="#">通識課程查詢</a></span></br>
+    <span id="Phy" class="course_search"><a href="#">體育課程查詢</a></span></br>
+    <span id="Mili" class="course_search"><a href="#">軍訓課程查詢</a></span></br>
+    <span id="Grade" class="history_search"><a href="#">歷年成績查詢</a></span></br>
+    <span id="Curr" class="history_search"><a href="#">歷年課表課程查詢</a></span></br>
+    <span id="Evol"><a href="#">本學期課程評價填寫</a></span></br>
+    <span id="Threshold"><a href="#">畢業門檻查詢</a></span></br>
     <div id="course_content">
     </div>
 </div>

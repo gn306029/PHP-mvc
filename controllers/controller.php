@@ -1,6 +1,7 @@
 <?php
-	interface Controller{
-		public function CheckSession();
+	abstract class Controller{
+		abstract public function CheckSession();
+		abstract public function router($action);
 	}
 
 ?>

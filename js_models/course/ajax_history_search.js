@@ -10,7 +10,7 @@ class Ajax_History_Search extends Ajax_Class {
         $("#course_content").html("");
         switch(response["Type"]){
             case "Success":
-                let data = JSON.parse(response["Msg"]);
+                let data = response["Msg"];
 
                 if(response["SearchType"] == "Grade"){
                     let html = "<table id='vue_infor' >";

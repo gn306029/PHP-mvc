@@ -9,7 +9,7 @@
 	$(function(){
 		$("#login").click(function(){
 			// 傳入 controller , action , arg
-			let ajax_login = new Ajax_Login("login","login",$("#form_infor").serialize());
+			let ajax_login = new Ajax_Login("manager","login",$("#form_infor").serialize());
 			ajax_login.Run();
 		})
 	})
@@ -21,6 +21,6 @@
 		<hr>
 		<button id="login" class="confirm" type="button">Login</button>
 		<input type="reset" value="Reset"/>
-		<span><a href="/MVC?controller=login&action=show_forget">忘記密碼</a></span>
+		<span><a href="/MVC?controller=manager&action=show_forget">忘記密碼</a></span>
 	</form>
 </div>

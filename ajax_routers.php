@@ -4,10 +4,6 @@
 		require_once("controllers/".$controller."_controller.php");
 		require_once("includes/php/eventMessage.php");
 		switch($controller){
-			case "login":
-				$eventMessage = new eventMessage($_GET,$_POST);
-				$controller = new LoingController($eventMessage);
-				break;
 			case "manager":
 				$eventMessage = new eventMessage($_GET,$_POST);
 				$controller = new ManagerController($eventMessage);
@@ -18,13 +14,11 @@
 				break;
 		}
 		//  執行對應動作
-		echo $controller->$action();
+		echo $controller->router($action);
 	}
 
-	$controllers = array('default' => ['index','error'],
-						 'login'  => ['index','login','logout','forget'],
-						 'manager' => ['search','modify'],
-						 'course' => ['search','history_search','information','now','show_evol']);
+	$controllers = array('manager' => ['search','modify','login','logout','forget'],
+						 'course' => ['search','grade_search','history_course','information','now','show_evol_page','send_evol','get_course_list','show_course_student','save_score','show_course_outline','save_outline']);
 
 	$controller = "default";
 	$action = "error";

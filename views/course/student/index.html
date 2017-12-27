@@ -9,9 +9,14 @@ $(function() {
         ajax_search_course.Run();
     })
 
-    $(".history_search").click(function(){
-    	let ajax_history_search = new Ajax_History_Search("course","history_search","search_type="+$(this).attr("id"));
+    $("#Grade").click(function(){
+    	let ajax_history_search = new Ajax_History_Search("course","grade_search","search_type="+$(this).attr("id"));
     	ajax_history_search.Run();
+    })
+
+    $("#Curr").click(function(){
+        let ajax_history_search = new Ajax_History_Search("course","history_course","search_type="+$(this).attr("id"));
+        ajax_history_search.Run();
     })
 
     $("#course_content").on("click",".course_id",function(){
@@ -26,6 +31,11 @@ $(function() {
 
     $("#course_content").on("click","#show_evol",function(){
         let ajax_course_evol = new Ajax_Course_Evol("course","show_evol","id="+$(this).val());
+        ajax_course_evol.Run();
+    })
+
+    $("#course_content").on("click","#send_evol",function(){
+        let ajax_course_evol = new Ajax_Course_Evol("course","send_evol",$("#evol_infor").serialize());
         ajax_course_evol.Run();
     })
 
@@ -47,7 +57,7 @@ $(function() {
     <span id="Grade" class="history_search"><a href="#">歷年成績查詢</a></span></br>
     <span id="Curr" class="history_search"><a href="#">歷年課表課程查詢</a></span></br>
     <span id="Evol"><a href="#">本學期課程評價填寫</a></span></br>
-    <span id="Threshold"><a href="#">畢業門檻查詢</a></span></br>
+    <!--<span id="Threshold"><a href="#">畢業門檻差距查詢</a></span></br>-->
     <div id="course_content">
     </div>
 </div>

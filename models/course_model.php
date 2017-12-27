@@ -5,7 +5,21 @@
 			parent::__construct();
 		}
 		// 用於查詢各類型之課程，目前為學生用
-		public function search($user,$course_type){
+		public function search($get,$post){
+			switch ($post["course_type"]) {
+				case "Pro":
+					$course_type = "1";
+					break;
+				case "Gen":
+					$course_type = "2";
+					break;
+				case "Phy":
+					$course_type = "3";
+					break;
+				case "Mili":
+					$course_type = "4";
+					break;
+			}
 			$sql = "SELECT
 					course.Course_ID,course.Name As C_Name,CONCAT(School_Year,Semester) As Year_Sem,
 					teacher.Name As T_Name,classroom.Name As R_Name,
@@ -28,7 +42,7 @@
 					shc.SID = :SID;";
 			$parm = array(
 				":Category_ID"=>$course_type,
-				":SID"=>$user
+				":SID"=>$_SESSION["login"]
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
@@ -42,14 +56,20 @@
 				}
 			}
 			if(count($response)>0){
-				return json_encode($response);
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>$response
+				);
 			}else{
-				return;
+				$resMsg = array(
+					"Type"=>"SearchNotFound",
+					"Msg"=>"查無資料"
+				);
 			}
-
+			return json_encode($resMsg);
 		}
 
-		public function Grade_search($sid){
+		public function grade_search($get,$post){
 			$sql = "SELECT
 					sort_rank.SID,sort_rank.Name,sort_rank.grade,sort_rank.rank,sort_rank.year
 					From
@@ -111,19 +131,28 @@
 					sort_rank.grade IS NOT null
                     ORDER BY sort_rank.year DESC";
 			$parm = array(
-				":SID"=>$sid
+				":SID"=>$_SESSION["login"]
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
 			if(count($response)>0){
-				return json_encode($response);
+				$resMsg = array(
+					"Type"=>"Success",
+					"SearchType"=>($post["search_type"]=="Grade"?"Grade":"Curr"),
+					"Msg"=>$response
+				);
 			}else{
-				return;
+				$resMsg = array(
+					"Type"=>"SearchNotFound",
+					"SearchType"=>($post["search_type"]=="Grade"?"Grade":"Curr"),
+					"Msg"=>"查無資料"
+				);
 			}
+			return json_encode($resMsg);
 		}
 		//取得歷史修課紀錄
-		public function History_Course($sid){
+		public function history_course($get,$post){
 
 			$sql = "SELECT
 					course.Course_ID,course.Name,CONCAT(course.School_Year,course.Semester) As 'year',
@@ -146,19 +175,35 @@
 					student_history_course.SID = :SID
 					ORDER BY course.School_Year DESC,course.Semester DESC";
 			$parm = array(
-				":SID"=>$sid
+				":SID"=>$_SESSION["login"]
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
 			if(count($response)>0){
-				return json_encode($response);
+				$resMsg = array(
+					"Type"=>"Success",
+					"SearchType"=>($post["search_type"]=="Grade"?"Grade":"Curr"),
+					"Msg"=>$response
+				);
 			}else{
-				return;
+				$resMsg = array(
+					"Type"=>"SearchNotFound",
+					"SearchType"=>($post["search_type"]=="Grade"?"Grade":"Curr"),
+					"Msg"=>"查無資料"
+				);
 			}
+			return json_encode($resMsg);
 		}
 		//取得課程資訊
-		public function information($course_id){
+		public function information($get,$post){
+			if(!isset($post["id"])){
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"無課程編號"
+				);
+				return json_encode($resMsg);
+			}
 			$sql = "SELECT
 					course.Name As Name,CONCAT(course.School_Year,course.Semester) As year,teacher.Name As teacher,classroom.Name As classroom,
 					category.Name As category,course.Outline,course.Course_Credit,CONCAT(course.Day,course.TIme) As Opentime,remarks.Name As remarks
@@ -174,7 +219,7 @@
 					WHERE
 					course.Course_ID = :course_id";
 			$parm = array(
-				":course_id"=>$course_id
+				":course_id"=>$post["id"]
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
@@ -183,7 +228,11 @@
 			if(count($response)>0){
 				$resdata["information"] = $response;
 			}else{
-				return;
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"查無該課程資料"
+				);
+				return json_encode($resMsg);
 			}
 			$sql = "SELECT
 					course_evaluation.Course_Evaluation As CE,course_evaluation.Teacher_Evaluation As TE
@@ -194,6 +243,7 @@
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$evaluation = $stmt->fetchAll();
+			// 去除 Null
 			foreach ($evaluation as $key_name1 => $value) {
 				foreach ($value as $key_name2 => $eval) {
 					if(is_null($eval)){
@@ -206,10 +256,14 @@
 			}else{
 				$resdata["evaluation"] = "暫無評論";
 			}
-			return json_encode($resdata);
+			$resMsg = array(
+				"Type"=>"Success",
+				"Msg"=>$resdata
+			);
+			return json_encode($resMsg);
 		}
 		// 取當當前學期修課清單
-		public function now($sid){
+		public function now($get,$post){
 			$content = file_get_contents("./config.json");
 			$content = json_decode($content,true);
 			$sql = "SELECT
@@ -222,17 +276,313 @@
 					AND shc.SID = :SID
 					ORDER BY course.Course_ID DESC";
 			$parm = array(
-				":SID"=>$sid,
+				":SID"=>$_SESSION["login"],
 				":year"=>$content["nowyear"]
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
 			if(count($response) > 0){
-				return $response;
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>json_encode($response)
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"無資料"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function show_evol_page($get,$post){
+			$content = file_get_contents("./config.json");
+			$content = json_decode($content,true);
+			$sql = "SELECT
+					course.Course_ID As Course_ID,
+					course.Name As course
+					FROM course
+					JOIN student_history_course As shc
+					ON course.Course_ID = shc.Course_ID
+					WHERE CONCAT(course.School_Year,course.Semester) = :year
+					AND course.Course_ID = :course_id
+					AND shc.SID = :sid";
+			$parm = array(
+				":sid"=>$_SESSION["login"],
+				":year"=>$content["nowyear"],
+				":course_id"=>$post["course_id"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->fetchAll();
+			if(count($response) > 0){
+				$resMsg = array(
+					"Type"=>"Success_Show",
+					"Msg"=>$response
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"IDError",
+					"Msg"=>"該年度無此課程"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function send_evol($get,$post){
+			if(!isset($post["course"])){
+				$resMsg = array(
+					"Type"=>"DataError",
+					"Msg"=>"課程資料為必要"
+				);
+				return json_encode($resMsg);
+			}
+			$sql = "INSERT INTO `course_evaluation`(`Course_ID`, `SID`, `Course_Evaluation`, `Teacher_Evaluation`) VALUES (:course_id,:sid,:course_evol,:teacher_evol)";
+			$parm = array(
+				":course_id"=>$post["course_id"],
+				":sid"=>$_SESSION["login"],
+				":course_evol"=>$post["course"],
+				":teacher_evol"=>$post["teacher"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->rowCount();
+			if($response > 0){
+				$resMsg = array(
+					"Type"=>"Success_Send",
+					"Msg"=>"填寫成功"
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"InsertError",
+					"Msg"=>"新增失敗"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function get_graduation_threshold($sid){
+			$sql = "SELECT 
+					faculty.Name , Pro_Compulsory , General , 
+					Physical , School , Sweep , College_Compulsory , Faculty_Option
+					From graduation_threshold
+					JOIN faculty
+					ON faculty.Faculty_ID = graduation_threshold.Faculty_ID
+					JOIN student
+					ON graduation_threshold.Faculty_ID = student.Faculty_ID
+					WHERE
+					student.SID = :sid
+					ORDER BY faculty.Name DESC";
+			$parm = array(
+				":sid"=>$sid
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->fetchAll();
+			if(count($response) > 0){
+				return json_encode($response);
 			}else{
 				return;
 			}
+		}
+
+		public function get_now_threshold($sid){
+			$sql = "SELECT
+					A.Name,A.SUM_CREDIT
+					FROM
+					(SELECT
+					remarks.Name,SUM(student_history_course.Get_Course_Credit) As SUM_CREDIT,CONCAT(course.School_Year,course.Semester) As 'year'
+					FROM
+					student_history_course
+					JOIN course
+					On student_history_course.Course_ID = course.Course_ID
+					JOIN remarks
+					ON course.Remarks_ID = remarks.Remarks_ID
+					WHERE
+					student_history_course.SID = :sid
+					GROUP BY year,remarks.Name DESC,course.Semester DESC)A
+					ORDER BY A.Name DESC";
+			$parm = array(
+				":sid"=>$sid
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->fetchAll();
+			if(count($response) > 0){
+				return json_encode($response);
+			}else{
+				return;
+			}
+		}
+		// 搜尋該名任課老師所有教過的課程
+		public function get_course_list($get,$post){
+			$sql = "SELECT 
+					course.Course_ID,course.Name,CONCAT(course.School_Year,course.Semester) As year,
+					remarks.Name As remarks,category.Name As category 
+					From course 
+					JOIN teacher 
+					ON course.Teacher_ID = teacher.Teacher_ID 
+					JOIN remarks 
+					ON course.Remarks_ID = remarks.Remarks_ID 
+					JOIN category 
+					ON course.Category_ID = category.Category_ID 
+					WHERE teacher.Teacher_ID = :teacher_id";
+			$parm = array(
+				":teacher_id"=>$_SESSION["login"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->fetchAll();
+			if(count($response) > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Button"=>($post["i"]==0)?"Student":"Outline",
+					"Msg"=>$response
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"搜尋時出錯"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function show_course_student($get,$post){
+			$sql = "SELECT
+					student.SID,student.Name,faculty.Name As faculty,student.Grade,student_history_course.Score
+					FROM student_history_course
+					JOIN student
+					ON student.SID = student_history_course.SID
+					JOIN faculty
+					ON student.Faculty_ID = faculty.Faculty_ID
+					WHERE
+					student_history_course.Course_ID = :course_id
+					ORDER BY student.SID";
+			$parm = array(
+				":course_id"=>$post["course_id"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->fetchAll();
+			for($i = 0;$i<$stmt->rowCount();$i++){
+				foreach ($response[$i] as $key => $value) {
+					if(is_null($response[$i][$key])){
+						$response[$i][$key] = "";
+					}
+				}
+			}
+			if(count($response) > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Course_ID"=>$post["course_id"],
+					"Msg"=>$response
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"搜尋時出錯"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function save_score($get,$post){
+			$error_count = 0;
+			$invaild_update = 0;
+			$success_update = 0;
+			foreach ($post["SID"] as $key => $value) {
+				$sql = "UPDATE student_history_course
+						SET Score = :score
+						WHERE SID = :sid
+						AND Course_ID = :course_id";
+				$parm = array(
+					":score"=>$post["score"][$key],
+					":sid"=>$post["SID"][$key],
+					":course_id"=>$post["course_id"]
+				);
+				try {
+					$stmt = $this->conn->prepare($sql);
+					$stmt->execute($parm);
+					$count = $stmt->rowCount();
+					if($count <= 0){
+						$invaild_update += 1;
+					}else{
+						$success_update += 1;
+					}
+				} catch (Exception $e) {
+					$error_count += 1;
+				}
+			}
+			if($error_count > 0 || $invaild_update > 0){
+				$resMsg = array(
+					"Type"=>"Error",
+					"Error_Count"=>$error_count,
+					"Invaild_Update_Count"=>$invaild_update,
+					"Success_Update_Count"=>$success_update
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Success",
+					"Error_Count"=>$error_count,
+					"Invaild_Update_Count"=>$invaild_update,
+					"Success_Update_Count"=>$success_update
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function show_course_outline($get,$post){
+			$sql = "SELECT
+					course.Course_ID,course.Name,
+					CONCAT(course.School_Year,course.Semester) As year,
+					course.Outline
+					FROM course
+					WHERE course.Course_ID = :course_id";
+			$parm = array(
+				":course_id"=>$post["course_id"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->fetchAll();
+			if(count($response) > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>json_encode($response)
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"搜尋時出錯"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function save_outline($get,$post){
+			$sql = "UPDATE course
+					SET Outline = :outline
+					WHERE Course_ID = :course_id";
+			$parm = array(
+				":course_id"=>$post["course_id"],
+				":outline"=>$post["outline"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->rowCount();
+			if($response > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>"更新成功"
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"無資料受到更新"
+				);
+			}
+			return json_encode($resMsg);
 		}
 	}
 ?>

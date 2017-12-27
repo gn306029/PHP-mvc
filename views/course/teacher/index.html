@@ -1,0 +1,43 @@
+<script type="text/javascript" src="js_models/course/ajax_course_list.js"></script>
+<script type="text/javascript" src="js_models/course/ajax_show_outline.js"></script>
+<script type="text/javascript" src="js_models/course/ajax_course_information.js"></script>
+<script type="text/javascript">
+$(function() {
+    $("#course_student").click(function() {
+        let ajax_course_list = new Ajax_Course_List("course", "get_course_list","i=0");
+        ajax_course_list.Run();
+    })
+
+    $("#course_content").on("click",".search_student",function(){
+        let ajax_show_student = new Ajax_Show_Student("course","show_course_student","course_id="+$(this).val());
+        ajax_show_student.Run();
+    })
+
+    $("#course_outline").click(function() {
+        let ajax_course_list = new Ajax_Course_List("course", "get_course_list","i=1");
+        ajax_course_list.Run();
+    })
+    
+    $("#course_content").on("click",".set_outline",function(){
+        let ajax_show_outline = new Ajax_Show_Outline("course","show_course_outline","course_id="+$(this).val());
+        ajax_show_outline.Run();
+    })
+
+
+})
+</script>
+<style type="text/css">
+	.td_content{
+		padding-right: 20px;
+		border-bottom-style: solid;
+	}
+</style>
+<div class="course_infor">
+    <span id="course_student"><a href="#">課程學生清單查詢以及成績填寫</a></span></br>
+    <span id="course_outline"><a href="#">課程大綱設定</a></span></br>
+    <div id="course_content">
+    </div>
+    <hr>
+    <div id="course_detail">
+    </div>
+</div>

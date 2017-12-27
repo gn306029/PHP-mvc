@@ -11,7 +11,7 @@
 		$("#forget").click(function(){
 			// 傳入 controller , action , arg
 			if($("#pwd").val() === $("#check_pwd").val()){
-				let ajax_forget = new Ajax_Forget("login","forget",$("#form_infor").serialize());
+				let ajax_forget = new Ajax_Forget("manager","forget",$("#form_infor").serialize());
 				ajax_forget.Run();
 			}else{
 				alert("密碼不同");

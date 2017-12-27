@@ -18,10 +18,13 @@ class Ajax_Search_Course extends Ajax_Class {
                     html += "<td>" + title[i] + "</td>";
                 }
                 html += "</tr>"
-                let data = JSON.parse(response["Msg"]);
+                let data = response["Msg"];
                 for (let key in data) {
-
-                	html += "<tr>";
+                    if(data[key][Math.round(Object.keys(data[key]).length/2-2)] == "已修完"){
+                        html += "<tr style='color:red'>";
+                    }else{
+                        html += "<tr>";
+                    }
                     for (let i=0;i<Object.keys(data[key]).length/2;i++) {
                         if (i == 0) {
                             html += "<td class=\"td_content\"><a href='#' class='course_id' id="+data[key][i]+">" + data[key][i] + "</a></td>";

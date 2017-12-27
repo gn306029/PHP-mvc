@@ -11,7 +11,18 @@
 			parent::__construct();
 		}
 
-		public function login($user,$pwd,$type){
+		public function login($get,$post){
+			if(strlen($post["user"]) == 10){
+				$type = "student";
+			}else if(strlen($post["user"]) == 5){
+				$type = "teacher";
+			}else{
+				$resMsg = array(
+					"Type"=>"FormError",
+					"Msg"=>"帳號格式錯誤"
+				);
+				return json_encode($resMsg);
+			}
 			switch ($type) {
 				case "student":
 					$sql = "SELECT Name From student Where SID = :SID AND Password = :Password";
@@ -22,45 +33,81 @@
 					break;
 			}
 			$parm = array(
-				":SID"=>$user,
-				":Password"=>md5($pwd)
+				":SID"=>$post["user"],
+				":Password"=>md5($post["pwd"])
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
 			if(count($response) > 0){
-				return $response;
+				$this->set_session("login",$post["user"]);
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>$_SESSION["login"]
+				);
+				if(isset($response[0]["Job_Category"])){
+					if($response[0]["Job_Category"] == "1"){
+						// 教師
+						$this->set_session("type","1");
+					}else if($response[0]["Job_Category"] == "2"){
+						// 行政人員
+						$this->set_session("type","2");
+					}
+				}else{
+					// 學生
+					$this->set_session("type","0");
+				}
 			}else{
-				return;
+				$resMsg = array(
+					"Type"=>"InforError",
+					"Msg"=>"帳號密碼錯誤"
+				);
 			}
+			return json_encode($resMsg);
+		}
+
+		public function logout(){
+			session_destroy();
+			$resMsg = array(
+				"Type"=>"Success",
+				"Msg"=>"GoodBye"
+			);
+			return json_encode($resMsg);
 		}
 		/* 忘記密碼直接重設 ， 因為密碼使用 MD5 加密過了*/
-		public function forget($user,$id,$pwd,$type){
-			switch ($type) {
-				case "student":
+		public function forget($get,$post){
+			switch ($post["type"]) {
+				case "0":
 					$sql = "UPDATE student SET Password = :Password Where SID = :SID AND ID = :ID";
 					break;
-				case "teacher":
+				case "1":
 					$sql = "UPDATE teacher SET Password = :Password Where Teacher_ID = :SID AND ID = :ID";
 					break;
 			}
 			$parm = array(
-				":SID"=>$user,
-				":ID"=>$id,
-				":Password"=>md5($pwd)
+				":SID"=>$post["user"],
+				":ID"=>$post["id"],
+				":Password"=>md5($post["pwd"])
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$count = $stmt->rowCount();
 			if($count > 0){
-				return true;
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>"更新成功，已可使用新密碼登入"
+				);
 			}else{
-				return false;
+				$resMsg = array(
+					"Type"=>"UpdateError",
+					"Msg"=>"無更新資料"
+				);
 			}
+			return json_encode($resMsg);
 		}
 
-		public function information($user,$type){
-			switch ($type) {
+		public function search($get,$post){
+			switch ($_SESSION["type"]) {
 				case "0":
 					$sql = "SELECT 
 							SID,student.Name,ID,Birth,Gender,faculty.Name As Faculty,academic.Name As Academic,
@@ -82,13 +129,13 @@
 					break;
 			}
 			$parm = array(
-				"SID"=>$user
+				"SID"=>$_SESSION["login"]
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
 			// 將職務類型編號轉為中文
-			if($type == "1" || $type == "2"){
+			if($_SESSION["type"] == "1" || $_SESSION["type"] == "2"){
 				if($response[0]["Job_Category"] == "1"){
 					$response[0]["Job_Category"] = "教師";
 				}else if($response[0]["Job_Category"] == "2"){
@@ -108,14 +155,21 @@
 				$response[0]["Gender"] = "男";
 			}
 			if(count($response)>0){
-				return json_encode($response);
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>$response
+				);
 			}else{
-				return;
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"搜尋時出現錯"
+				);
 			}
+			return json_encode($resMsg);
 		}
 
-		public function modify($user,$type,$post){
-			switch ($type) {
+		public function modify($get,$post){
+			switch ($_SESSION["type"]) {
 				case "0":
 					$sql = "UPDATE student
 							SET 
@@ -140,7 +194,7 @@
 						":Mather_Phone"=>$post["mather_phone"],
 						":Urgent_Man"=>$post["urgent_man"],
 						":Urgent_Phone"=>$post["urgent_phone"],
-						":SID"=>$user
+						":SID"=>$_SESSION["login"]
 					);
 					break;
 				case "1":
@@ -160,7 +214,7 @@
 						":Cellphone"=>$post["cellphone"],
 						":Urgent_Man"=>$post["urgent_man"],
 						":Urgent_Phone"=>$post["urgent_phone"],
-						":SID"=>$user
+						":SID"=>$_SESSION["login"]
 					);
 					break;
 			}
@@ -168,12 +222,26 @@
 			$stmt->execute($parm);
 			$count = $stmt->rowCount();
 			if($count > 0){
-				return true;
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>"更新成功"
+				);
 			}else{
-				return false;
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"沒有更新任何資料"
+				);
 			}
+			return json_encode($resMsg);
 		}
 
+		public function set_session($name,$value){
+			$_SESSION[$name] = $value;
+		}
+
+		public function del_session($name){
+			unset($_SESSION[$name]);
+		}
 	}
 
 ?>

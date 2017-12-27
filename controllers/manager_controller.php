@@ -4,7 +4,8 @@
 	進來就會顯示個人相關資料
 	*/
 	require_once("models/Information_Model.php");
-	class ManagerController{
+	require_once("controllers/controller.php");
+	class ManagerController extends Controller{
 
 		private $get;
 		private $post;
@@ -14,46 +15,28 @@
 			$this->post = $eventMessage->Post();
 		}
 
-		public function search(){
-			if(!isset($_SESSION["type"]) && !isset($_SESSION["login"])){
-				require_once("views/default/index.html");
-				return;
-			}
-			$infor_model = new Information_Model();
-			$response = $infor_model->information($_SESSION["login"],$_SESSION["type"]);
-			if(is_null($response)){
-				$resMsg = array(
-					"Type"=>"Error",
-					"Msg"=>"搜尋時出現錯"
-				);
-			}else{
-				$resMsg = array(
-					"Type"=>"Success",
-					"Msg"=>$response
-				);
-			}
-			return json_encode($resMsg);
+		public function index(){
+			require_once("views/login/index.html");
 		}
 
-		public function modify(){
+		public function CheckSession(){
 			if(!isset($_SESSION["type"]) && !isset($_SESSION["login"])){
 				require_once("views/default/index.html");
 				return;
 			}
-			$infor_model = new Information_Model();
-			$response = $infor_model->modify($_SESSION["login"],$_SESSION["type"],$this->post);
-			if($response){
-				$resMsg = array(
-					"Type"=>"Success",
-					"Msg"=>"更新成功"
-				);
-			}else{
-				$resMsg = array(
-					"Type"=>"Error",
-					"Msg"=>"沒有更新任何資料"
-				);
+		}
+
+		public function router($action){
+			if($action != "login" && $action != "logout" && $action != "forget"){
+				$this->CheckSession();
 			}
-			return json_encode($resMsg);
+			$infor_model = new Information_Model();
+			$response = $infor_model->$action($this->get,$this->post);
+			return $response;
+		}
+
+		public function show_forget(){
+			require_once("views/login/forget.html");
 		}
 	}
 ?>

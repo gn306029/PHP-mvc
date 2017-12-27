@@ -10,7 +10,7 @@ class Ajax_Infor extends Ajax_Class{
 		switch(response["Type"]){
 			case "Success":
 				$("#manger_content").html("");
-				let data = JSON.parse(response["Msg"]);
+				let data = response["Msg"];
 				let html = "<form id=\"information\">";
 				if(data[0]["SID"]){
 					html += "<span>學號："+data[0]["SID"]+"</span><br>";

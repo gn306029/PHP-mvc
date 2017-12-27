@@ -1,9 +1,11 @@
 <?php
 	
-	class DefaultController{
+	require_once("controllers/controller.php");
+	class DefaultController extends Controller{
 
 		public function __construct(){}
-
+		public function CheckSession(){}
+		public function router($action){}
 		public function index(){
 			if(isset($_SESSION["type"])){
 				switch($_SESSION["type"]){

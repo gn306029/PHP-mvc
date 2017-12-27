@@ -11,7 +11,6 @@ class Ajax_Now_Course extends Ajax_Class {
         switch(response["Type"]){
             case "Success":
                 let data = JSON.parse(response["Msg"]);
-                console.log(data)
 
                 let html = "<table id='vue_infor'>";
                 html += "<tr>";
@@ -20,9 +19,14 @@ class Ajax_Now_Course extends Ajax_Class {
                 for(let i=0;i<Object.keys(data).length;i++){
                     html += "<tr>";
                     for(let j=0;j<Object.keys(data[i]).length/2;j++){
-                        html += "<td class='td_content'>"+data[i][j]+"</td>";
+                        if(j == 0){
+                            html += "<td class='td_content'><a href='#' class='course_id' id="+data[i][j]+">"+data[i][j]+"</a></td>";
+                        }else{
+                            html += "<td class='td_content'>"+data[i][j]+"</td>";
+                        }
+                        
                     }
-                    html += "<td class='td_content'><button type='button' id='show_evol' value='"+data[i][0]+"' style='width:100%;'>填寫評價</td>";
+                    html += "<td class='td_content'><button type='button' onclick=\"(new Ajax_Course_Evol('course','show_evol_page','course_id="+data[i][0]+"')).Run()\"  style='width:100%;'>填寫評價</td>";
                     html += "</tr>";
                 }
                 html += "</table>";

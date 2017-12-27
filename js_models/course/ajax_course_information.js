@@ -10,7 +10,7 @@ class Ajax_Course_Information extends Ajax_Class {
         $("#course_content").html("");
         switch(response["Type"]){
             case "Success":
-                let data = JSON.parse(response["Msg"]);
+                let data = response["Msg"];
                 let html = "<div class='course_detail'>";
                 html += "<ul>";
                 for(let i=0;i<Object.keys(data["information"][0]).length/2;i++){

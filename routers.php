@@ -26,7 +26,7 @@
 
 	$controllers = array('default' => ['index','error'],
 						 'course' => ['index'],
-						 'manager' => ['index','show_forget']);
+						 'manager' => ['index','show_forget','insert']);
 
 	// check that the requested controller and action are both allowed
 	// if someone tries to access something else he will be redirected to the error action of the pages controller

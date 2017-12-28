@@ -25,10 +25,17 @@ class Ajax_Show_Student extends Ajax_Class {
                     html += "<td class='td_content'>"+data[i]["Name"]+"</td>";
                     html += "<td class='td_content'>"+data[i]["faculty"]+"</td>";
                     html += "<td class='td_content'>"+data[i]["Grade"]+"</td>";
-                    html += "<td class='td_content'><input type='text' name='score[]' value='"+data[i]["Score"]+"'/></td>";
+                    if(response["Access"]){
+                        html += "<td class='td_content'><input type='text' name='score[]' value='"+data[i]["Score"]+"'/></td>";
+                    }else{
+                        html += "<td class='td_content'>"+data[i]["Score"]+"</td>";
+                    }
                     html += "</tr>";
                 }
-                html += "</table><input type='button' id='send_score' onclick=\"(new Ajax_Save_Score('course','save_score',$('#student').serialize())).Run()\" value='Save'></form>";
+                html += "</table></form>";
+                if(response["Access"]){
+                    html += "<input type='button' id='send_score' onclick=\"(new Ajax_Save_Score('course','save_score',$('#student').serialize())).Run()\" value='Save'>";
+                }
                 $("#course_detail").append(html);
                 let script = "<script id=\"save_script\" src=\"js_models/course/ajax_save_score.js\"></script>";
                 // 判斷是否加載過了

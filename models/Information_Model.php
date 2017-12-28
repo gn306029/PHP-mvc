@@ -235,6 +235,124 @@
 			return json_encode($resMsg);
 		}
 
+		// 新增資料時須根據新增的類別不同撈出不同的預設資料
+		public function show_insert($get,$post){
+			switch ($post["type"]) {
+				case "student":
+					$sql = "SELECT 
+							academic.Academic_ID,academic.Name As academic
+							FROM academic
+							ORDER BY academic.Academic_ID";
+					$stmt = $this->conn->prepare($sql);
+					$stmt->execute();
+					$res1 = $stmt->fetchAll();
+					$resMsg = array(
+						"Type"=>"Success",
+						"Insert_Type"=>"student",
+						"Data1"=>$res1
+					);
+					break;
+				case "teacher":
+				case "employee":
+					$sql = "SELECT 
+							job_title.Job_ID,job_title.Title As job_title
+							FROM job_title
+							ORDER BY job_title.Job_ID";
+					$stmt = $this->conn->prepare($sql);
+					$stmt->execute();
+					$res1 = $stmt->fetchAll();
+					$resMsg = array(
+						"Type"=>"Success",
+						"Insert_Type"=>"teacher",
+						"Data1"=>$res1
+					);
+					break;
+			}
+			$sql = "SELECT
+					faculty.Faculty_ID,faculty.Name As faculty
+					From faculty
+					ORDER BY faculty.Faculty_ID";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute();
+			$res2 = $stmt->fetchAll();
+			$resMsg["Faculty"] = $res2;
+			return json_encode($resMsg);
+		}
+
+		public function insert($get,$post){
+			switch ($post["insert_type"]) {
+				case "student":
+					$sql = "INSERT INTO `student`
+							(`SID`, `Name`, `ID`, `Birth`, `Gender`, `Faculty_ID`, `Academic_ID`, `Grade`, `Address`, `Phone`, `Cellphone`, 
+							 `Father`, `Father_Phone`, `Mather`, `Mather_Phone`, `Urgent_Man`, `Urgent_Phone`, `Highschool`, `Status`, `Password`) 
+							VALUES 
+							(:SID,:Name,:ID,:Birth,:Gender,:Faculty_ID,:Academic_ID,:Grade,:Address,:Phone,:Cellphone,
+							 :Father,:Father_Phone,:Mather,:Mather_Phone,:Urgent_Man,:Urgent_Phone,:Highschool,:Status,:Password)";
+					$parm = array(
+						":SID"=>$post["SID"],
+						":Name"=>$post["Name"],
+						":ID"=>$post["ID"],
+						":Gender"=>$post["Gender"],
+						":Birth"=>$post["Birth"],
+						":Address"=>$post["Address"],
+						":Phone"=>$post["Phone"],
+						":Cellphone"=>$post["Cellphone"],
+						":Urgent_Man"=>$post["Urgent_Man"],
+						":Urgent_Phone"=>$post["Urgent_Phone"],
+						":Grade"=>$post["Grade"],
+						":Father"=>$post["Father"],
+						":Father_Phone"=>$post["Father_Phone"],
+						":Mather"=>$post["Mather"],
+						":Mather_Phone"=>$post["Mather_Phone"],
+						":Highschool"=>$post["Highschool"],
+						":Status"=>$post["status"],
+						":Faculty_ID"=>$post["faculty"],
+						":Academic_ID"=>$post["data1"],
+						":Password"=>$post["Password"]
+					);
+					break;
+				case "teacher":
+					$sql = "INSERT INTO `teacher`
+							(`Teacher_ID`, `Name`, `ID`, `Gender`, `Birth`, `Faculty_ID`, `Address`, `Phone`, `Cellphone`, 
+							 `Urgent_Man`, `Urgent_Phone`, `Salary`, `Years`, `Job_ID`, `Password`) 
+							VALUES 
+							(:SID,:Name,:ID,:Gender,:Birth,:Faculty_ID,:Address,:Phone,:Cellphone,
+							 :Urgent_Man,:Urgent_Phone,:Salary,0,:Job_ID,md5(:Password))";
+					$parm = array(
+						":Teacher_ID"=>$post["Teacher_ID"],
+						":Name"=>$post["Name"],
+						":ID"=>$post["ID"],
+						":Gender"=>$post["Gender"],
+						":Birth"=>$post["Birth"],
+						":Address"=>$post["Address"],
+						":Phone"=>$post["Phone"],
+						":Cellphone"=>$post["Cellphone"],
+						":Urgent_Man"=>$post["Urgent_Man"],
+						":Urgent_Phone"=>$post["Urgent_Phone"],
+						":Salary"=>$post["Salary"],
+						":Faculty_ID"=>$post["faculty"],
+						":Job_ID"=>$post["data1"],
+						":Password"=>$post["Password"]
+					);
+					break;
+			}
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->rowCount();
+			if($response > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Msg"=>"新增成功"
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"新增失敗"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
 		public function set_session($name,$value){
 			$_SESSION[$name] = $value;
 		}

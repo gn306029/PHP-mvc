@@ -21,10 +21,10 @@
 					break;
 			}
 			$sql = "SELECT
-					course.Course_ID,course.Name As C_Name,CONCAT(School_Year,Semester) As Year_Sem,
+					course.Course_ID,course.Name As Cs_Name,CONCAT(School_Year,Semester) As Year_Sem,
 					teacher.Name As T_Name,classroom.Name As R_Name,
 					category.Name As C_Name,remarks.Name As RE_Name,
-					Outline,Course_Credit,Day,Time,shc.Status,shc.Score
+					Outline,Course_Credit,Day,Time
 					From course 
 					JOIN teacher
 					On course.Teacher_ID = teacher.Teacher_ID
@@ -34,15 +34,11 @@
 					On course.Category_ID = category.Category_ID
 					Join remarks
 					On course.Remarks_ID = remarks.Remarks_ID
-					Left Join student_history_course As shc
-					On course.Course_ID = shc.Course_ID
-					Where
-					category.Category_ID = :Category_ID
-					And
-					shc.SID = :SID;";
+					Where category.Category_ID = :Category_ID
+                    GROUP BY course.Course_ID,course.Name,CONCAT(School_Year,Semester),teacher.Name,
+                    classroom.Name,category.Name,remarks.Name,Outline,Course_Credit,Day,Time";
 			$parm = array(
 				":Category_ID"=>$course_type,
-				":SID"=>$_SESSION["login"]
 			);
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
@@ -158,7 +154,8 @@
 					course.Course_ID,course.Name,CONCAT(course.School_Year,course.Semester) As 'year',
 					teacher.Name As 'teacher',classroom.Name As 'room',
 					category.Name As 'category',remarks.Name As 'remarks',
-					course.Outline,course.Course_Credit,CONCAT(course.Day,course.Time) As 'time'
+					course.Outline,course.Course_Credit,CONCAT(course.Day,course.Time) As 'time',
+					student_history_course.Score
 					FROM
 					student_history_course
 					JOIN course
@@ -180,6 +177,13 @@
 			$stmt = $this->conn->prepare($sql);
 			$stmt->execute($parm);
 			$response = $stmt->fetchAll();
+			foreach ($response as $key_name1 => $value) {
+				foreach ($value as $key_name2 => $eval) {
+					if(is_null($eval)){
+						$response[$key_name1][$key_name2] = "";
+					}
+				}
+			}
 			if(count($response)>0){
 				$resMsg = array(
 					"Type"=>"Success",
@@ -428,6 +432,20 @@
 					JOIN category 
 					ON course.Category_ID = category.Category_ID 
 					WHERE teacher.Teacher_ID = :teacher_id";
+			switch ($post["i"]) {
+				case "0":
+					$button = "Student";
+					break;
+				case "1":
+					$button = "Outline";
+					break;
+				case "1-1":
+					$button = "Score";
+					$content = file_get_contents("./config.json");
+					$content = json_decode($content,true);
+					$sql .= "\nAND CONCAT(course.School_Year,course.Semester) = '".$content["nowyear"]."'";
+					break;
+			}
 			$parm = array(
 				":teacher_id"=>$_SESSION["login"]
 			);
@@ -437,7 +455,7 @@
 			if(count($response) > 0){
 				$resMsg = array(
 					"Type"=>"Success",
-					"Button"=>($post["i"]==0)?"Student":"Outline",
+					"Button"=>$button,
 					"Msg"=>$response
 				);
 			}else{
@@ -450,6 +468,15 @@
 		}
 
 		public function show_course_student($get,$post){
+			if(isset($post["access"])){
+				if($post["access"] == "OK"){
+					$access = true;
+				}else{
+					$access = false;
+				}
+			}else{
+				$access = false;
+			}
 			$sql = "SELECT
 					student.SID,student.Name,faculty.Name As faculty,student.Grade,student_history_course.Score
 					FROM student_history_course
@@ -477,12 +504,13 @@
 				$resMsg = array(
 					"Type"=>"Success",
 					"Course_ID"=>$post["course_id"],
+					"Access"=>($access)?true:false,
 					"Msg"=>$response
 				);
 			}else{
 				$resMsg = array(
 					"Type"=>"Error",
-					"Msg"=>"搜尋時出錯"
+					"Msg"=>"搜尋時出現錯誤"
 				);
 			}
 			return json_encode($resMsg);

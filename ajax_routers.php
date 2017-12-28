@@ -17,7 +17,7 @@
 		echo $controller->router($action);
 	}
 
-	$controllers = array('manager' => ['search','modify','login','logout','forget'],
+	$controllers = array('manager' => ['search','modify','login','logout','forget','show_insert','insert'],
 						 'course' => ['search','grade_search','history_course','information','now','show_evol_page','send_evol','get_course_list','show_course_student','save_score','show_course_outline','save_outline']);
 
 	$controller = "default";

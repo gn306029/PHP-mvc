@@ -43,10 +43,16 @@ class Ajax_History_Search extends Ajax_Class {
                     html += "<td class='td_content' v-for='todo in list'>{{todo.text}}</td>";
                     html += "</tr>";
                     for(let i in data){
-                        html += "<tr>";
+                        
                         for(let j=0;j<Object.keys(data[i]).length/2;j++){
                             if(j == 0){
                                 html += "<td class='td_content'><a href='#' class='course_id' id="+data[i][j]+">"+data[i][j]+"</a></td>";
+                            }else if(j == Math.floor(Object.keys(data[i]).length/2)-1){
+                                if(data[i][j] < 60 && data[i][j].length != 0){
+                                    html += "<td class='td_content' style='color:red;border-bottom-color: black;'>"+data[i][j]+"</td>";
+                                }else{
+                                    html += "<td class='td_content'>"+data[i][j]+"</td>";
+                                }
                             }else{
                                 html += "<td class='td_content'>"+data[i][j]+"</td>";
                             }
@@ -69,11 +75,15 @@ class Ajax_History_Search extends Ajax_Class {
                                 {text:"備註"},
                                 {text:"大綱"},
                                 {text:"學分數"},
-                                {text:"上課時間"}
+                                {text:"上課時間"},
+                                {text:"學期成績"},
                             ]
                         }
                     })
                 }
+                break;
+            case "SearchNotFound":
+                alert(response["Msg"]);
                 break;
         }
     }

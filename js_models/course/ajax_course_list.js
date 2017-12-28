@@ -24,6 +24,8 @@ class Ajax_Course_List extends Ajax_Class {
                     html += "<td class='td_content'>"+data[i]["category"]+"</td>";
                     if(response["Button"] == "Student"){
                         html += "<td class='td_content'><button class='search_student' value='"+data[i]["Course_ID"]+"' style='width:100%'>學生清單</button></a></td>";
+                    }else if(response["Button"] == "Score"){
+                        html += "<td class='td_content'><button class='search_student' value='"+data[i]["Course_ID"]+"&access=OK' style='width:100%'>學生清單</button></a></td>";
                     }else{
                         html += "<td class='td_content'><button class='set_outline' value='"+data[i]["Course_ID"]+"' style='width:100%'>設定課綱</button></a></td>";
                     }

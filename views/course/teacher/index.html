@@ -17,6 +17,11 @@ $(function() {
         let ajax_course_list = new Ajax_Course_List("course", "get_course_list","i=1");
         ajax_course_list.Run();
     })
+
+    $("#course_score").click(function() {
+        let ajax_course_list = new Ajax_Course_List("course", "get_course_list","i=1-1");
+        ajax_course_list.Run();
+    })
     
     $("#course_content").on("click",".set_outline",function(){
         let ajax_show_outline = new Ajax_Show_Outline("course","show_course_outline","course_id="+$(this).val());
@@ -33,7 +38,8 @@ $(function() {
 	}
 </style>
 <div class="course_infor">
-    <span id="course_student"><a href="#">課程學生清單查詢以及成績填寫</a></span></br>
+    <span id="course_student"><a href="#">課程學生清單查詢</a></span></br>
+    <span id="course_score"><a href="#">本學期成績登錄</a></span></br>
     <span id="course_outline"><a href="#">課程大綱設定</a></span></br>
     <div id="course_content">
     </div>

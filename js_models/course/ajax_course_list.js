@@ -7,6 +7,7 @@ class Ajax_Course_List extends Ajax_Class {
     Ajax_Success(res) {
         let response = JSON.parse(res);
         $("#course_content").html("");
+        $("#course_detail").html("");
         switch (response["Type"]) {
             case "Success":
                 //console.log(response)

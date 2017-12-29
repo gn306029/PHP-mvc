@@ -612,5 +612,206 @@
 			}
 			return json_encode($resMsg);
 		}
+
+		public function show_insert($get,$post){
+			$content = file_get_contents("./config.json");
+			$content = json_decode($content,true);
+			$teacher = $this->get_all_teacher();
+			$classroom = $this->get_all_classroom();
+			$category = $this->get_all_category();
+			$remarks = $this->get_all_remarks();
+			$resMsg = array(
+				"Type"=>"Success",
+				"Insert_Type"=>$get["action"],
+				"teacher"=>$teacher,
+				"classroom"=>$classroom,
+				"category"=>$category,
+				"remarks"=>$remarks,
+				"year"=>$content["nextyear"]
+			);
+			return json_encode($resMsg);
+		}
+
+		public function get_all_teacher(){
+			$sql = "SELECT Teacher_ID,Name From teacher ORDER BY Teacher_ID";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute();
+			$teacher = $stmt->fetchAll();
+			return $teacher;
+		}
+
+		public function get_all_category(){
+			$sql = "SELECT Category_ID,Name From category ORDER BY Category_ID";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute();
+			$category = $stmt->fetchAll();
+			return $category;
+		}
+
+		public function get_all_classroom(){
+			$sql = "SELECT Classroom_ID,Name From classroom ORDER BY Classroom_ID";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute();
+			$classroom = $stmt->fetchAll();
+			return $classroom;
+		}
+
+		public function get_all_remarks(){
+			$sql = "SELECT Remarks_ID,Name From remarks ORDER BY Remarks_ID";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute();
+			$remarks = $stmt->fetchAll();
+			return $remarks;
+		}
+
+		public function show_modify($get,$post){
+			$sql = "SELECT
+					course.Course_ID,course.Name As Cs_Name,CONCAT(School_Year,Semester) As Year_Sem,
+					teacher.Name As T_Name,classroom.Name As R_Name,
+					category.Name As C_Name,remarks.Name As RE_Name,
+					Outline,Course_Credit,Day,Time
+					From course 
+					JOIN teacher
+					On course.Teacher_ID = teacher.Teacher_ID
+					Join classroom
+					On course.Classroom_ID = classroom.Classroom_ID
+					Join category
+					On course.Category_ID = category.Category_ID
+					Join remarks
+					On course.Remarks_ID = remarks.Remarks_ID
+					ORDER BY course.Course_ID";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute();
+			$response = $stmt->fetchAll();
+			$resMsg = array(
+				"Type"=>"Success",
+				"Insert_Type"=>$get["action"],
+				"Msg"=>$response
+			);
+			return json_encode($resMsg);
+		}
+
+		public function show_modify_detail($get,$post){
+			$teacher = $this->get_all_teacher();
+			$classroom = $this->get_all_classroom();
+			$category = $this->get_all_category();
+			$remarks = $this->get_all_remarks();
+			$sql = "SELECT
+					course.Course_ID,course.Name As Cs_Name,CONCAT(School_Year,Semester) As Year_Sem,
+					teacher.Teacher_ID As Teacher_ID,classroom.Classroom_ID As Classroom_ID,
+					category.Category_ID As Category_ID,remarks.Remarks_ID As Remarks_ID,
+					Outline,Course_Credit,Day,Time
+					From course 
+					JOIN teacher
+					On course.Teacher_ID = teacher.Teacher_ID
+					Join classroom
+					On course.Classroom_ID = classroom.Classroom_ID
+					Join category
+					On course.Category_ID = category.Category_ID
+					Join remarks
+					On course.Remarks_ID = remarks.Remarks_ID
+					Where course.Course_ID = :Course_ID";
+			$parm = array(
+				":Course_ID"=>$post["course_id"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->fetchAll();
+			if(count($response) > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Insert_Type"=>$get["action"],
+					"teacher"=>$teacher,
+					"classroom"=>$classroom,
+					"category"=>$category,
+					"remarks"=>$remarks,
+					"Msg"=>$response
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"無此ID"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function insert($get,$post){
+			$content = file_get_contents("./config.json");
+			$content = json_decode($content,true);
+			$sql = "INSERT INTO `course`
+					(`Course_ID`, `Name`, `School_Year`, `Semester`, `Teacher_ID`, `Classroom_ID`, 
+					 `Category_ID`, `Outline`, `Course_Credit`, `Day`, `Time`, `Remarks_ID`) 
+					VALUES 
+					(:Course_ID,:Name,:School_Year,:Semester,:Teacher_ID,:Classroom_ID,
+					 :Category_ID,:Outline,:Course_Credit,:Day,:Time,:Remarks_ID)";
+			$parm = array(
+				":Course_ID"=>$post["Course_ID"],
+				":Name"=>$post["Name"],
+				":School_Year"=>substr($content["nextyear"],0,3),
+				":Semester"=>substr($content["nextyear"],3),
+				":Teacher_ID"=>$post["Teacher_ID"],
+				":Classroom_ID"=>$post["Classroom_ID"],
+				":Category_ID"=>$post["Category_ID"],
+				":Outline"=>$post["Outline"],
+				":Course_Credit"=>$post["Course_Credit"],
+				":Day"=>$post["Day"],
+				":Time"=>$post["Time"],
+				":Remarks_ID"=>$post["Remarks_ID"]
+			);
+
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->rowCount();
+			if($response > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Insert_Type"=>"insert",
+					"Msg"=>"新增成功"
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"新增時出錯"
+				);
+			}
+			return json_encode($resMsg);
+		}
+
+		public function modify($get,$post){
+			$sql = "UPDATE `course` 
+					SET 
+					`Name`=:Name,`Teacher_ID`=:Teacher_ID,`Classroom_ID`=:Classroom_ID,
+					`Category_ID`=:Category_ID,`Outline`=:Outline,`Course_Credit`=:Course_Credit,`Day`=:Day,`Time`=:Time,`Remarks_ID`=:Remarks_ID 
+					WHERE course.Course_ID = :Course_ID";
+			$parm = array(
+				":Name"=>$post["Name"],
+				":Teacher_ID"=>$post["Teacher_ID"],
+				":Classroom_ID"=>$post["Classroom_ID"],
+				":Category_ID"=>$post["Category_ID"],
+				":Outline"=>$post["Outline"],
+				":Course_Credit"=>$post["Course_Credit"],
+				":Day"=>$post["Day"],
+				":Time"=>$post["Time"],
+				":Remarks_ID"=>$post["Remarks_ID"],
+				":Course_ID"=>$post["Course_ID"]
+			);
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute($parm);
+			$response = $stmt->rowCount();
+			if($response > 0){
+				$resMsg = array(
+					"Type"=>"Success",
+					"Insert_Type"=>"modify",
+					"Msg"=>"更新成功"
+				);
+			}else{
+				$resMsg = array(
+					"Type"=>"Error",
+					"Msg"=>"無資料更新"
+				);
+			}
+			return json_encode($resMsg);
+		}
 	}
 ?>

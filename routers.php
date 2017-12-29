@@ -19,6 +19,10 @@
 				$eventMessage = new eventMessage($_GET,$_POST);
 				$controller = new ManagerController($eventMessage);
 				break;
+			case "bus":
+				$eventMessage = new eventMessage($_GET,$_POST);
+				$controller = new BusController($eventMessage);
+				break;
 		}
 		//  顯示該模組的首頁
 		$controller->$action();
@@ -26,7 +30,8 @@
 
 	$controllers = array('default' => ['index','error'],
 						 'course' => ['index'],
-						 'manager' => ['index','show_forget','insert']);
+						 'manager' => ['index','show_forget','insert'],
+						 'bus' => ['index']);
 
 	// check that the requested controller and action are both allowed
 	// if someone tries to access something else he will be redirected to the error action of the pages controller

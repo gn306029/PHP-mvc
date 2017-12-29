@@ -1,5 +1,6 @@
 <script type="text/javascript" src="js_models/manager/ajax_infor.js"></script>
 <script type="text/javascript" src="js_models/manager/ajax_insert.js"></script>
+<script type="text/javascript" src="js_models/course/ajax_add_course.js"></script>
 <script type="text/javascript">
 	$(function(){
 		$("#information_modify").click(function(){
@@ -10,6 +11,11 @@
 		$(".insert").click(function(){
 			let ajax_insert = new Ajax_Insert("manager","show_insert","type="+$(this).attr("id"));
 			ajax_insert.Run();
+		})
+
+		$(".course").click(function(){
+			let ajax_add_course = new Ajax_Add_Course("course",$(this).attr("id"),"");
+			ajax_add_course.Run();
 		})
 
 		$("#manger_content").on("click","#send",function(){
@@ -29,8 +35,9 @@
 	<span id="information_modify"><a href="#">基本資料修改</a></span></br>
 	<span class="insert" id="student"><a href="#">學生資料新增</a></span></br>
 	<span class="insert" id="teacher"><a href="#">教職員資料新增</a></span></br>
-	<span><a href="#">課程相關資訊修改</a></span></br>
-	<span><a href="#">校車系統</a></span></br>
+	<span class="course" id="show_insert"><a href="#">課程相關資訊新增</a></span></br>
+	<span class="course" id="show_modify"><a href="#">課程相關資訊修改</a></span></br>
+	<span><a href="/MVC/?controller=bus&action=index">校車系統</a></span></br>
 	<div id="manger_content">
 	</div>
 	<div id="manger_detail">

@@ -10,6 +10,7 @@ class Ajax_Show_Student extends Ajax_Class {
             case "Success":
                 // 將學生資料整理成Table並顯示
                 $("#course_detail").html("");
+                $("#course_detail").html("");
                 let data = response["Msg"];
                 let title = ["學號","姓名","科系","班級","成績"];
                 let html = "<form id='student'><table id='vue_infor' >";
